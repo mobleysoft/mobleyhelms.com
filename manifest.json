@@ -1,0 +1,17 @@
+{
+  "name": "Helms / Mobley 2028",
+  "short_name": "H/M 2028",
+  "description": "The Admiral and the Architect.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#03070d",
+  "theme_color": "#0a1628",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
