@@ -1455,11 +1455,38 @@ window.addEventListener('load',function(){window.scrollTo(0,0);});
     <div class="eyebrow reveal">The Republic</div>
     <h2 class="section-title reveal">The second constitutional convention<br>has already convened.</h2>
     <p class="section-sub reveal" style="margin:0 auto">Sign and witness. The system is live. Your data is sovereign — no third parties, no extraction, no surveillance.</p>
-    <form class="join-form reveal" onsubmit="return false" style="margin-top:32px">
-      <input type="email" placeholder="Your email address" aria-label="Email address">
+    <form id="join-form" class="join-form reveal" style="margin-top:32px">
+      <input type="email" id="join-email" placeholder="Your email address" aria-label="Email address" required>
+      <input type="text" id="join-website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
       <button type="submit">JOIN</button>
     </form>
-    <p class="join-fine reveal" style="margin-top:16px">No PAC. No consultants. No spam. The people running built this form.</p>
+    <p id="join-status" class="join-fine reveal" style="margin-top:16px">No PAC. No consultants. No spam. The people running built this form.</p>
+    <script>
+      document.getElementById('join-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var email = document.getElementById('join-email').value.trim();
+        var website = document.getElementById('join-website').value;
+        var status = document.getElementById('join-status');
+        var original = status.textContent;
+        status.textContent = 'Submitting...';
+        try {
+          var res = await fetch('/api/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, website: website })
+          });
+          var data = await res.json().catch(function () { return {}; });
+          if (res.ok) {
+            status.textContent = "You're signed. Thank you for witnessing.";
+            document.getElementById('join-form').style.display = 'none';
+          } else {
+            status.textContent = data.error || 'Something went wrong - please try again.';
+          }
+        } catch (err) {
+          status.textContent = 'Network error - please try again.';
+        }
+      });
+    </script>
   </div>
 </section>
 
