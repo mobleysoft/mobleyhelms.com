@@ -992,22 +992,30 @@ window.addEventListener('load',function(){window.scrollTo(0,0);});
     }catch(e){}
   }
 
-  // First user interaction anywhere → autostart music + storm
+  // First user interaction → autostart music + storm. Deliberately limited
+  // to click/touchstart only - real, discrete user gestures that Safari's
+  // (desktop and iOS) strict autoplay-permission model reliably counts as
+  // user activation. 'scroll' and 'keydown' were removed 2026-10-01: a real
+  // bug report (song silent on real Safari/iOS despite working in a
+  // Chromium test) traced to this - scroll in particular is not reliably
+  // treated as user activation for media autoplay in WebKit, so a
+  // scroll-triggered tryPlay() could silently fail there while working
+  // elsewhere. Also removed the unconditioned tryPlay() call that used to
+  // run immediately on page load with no gesture at all: calling
+  // audio.play() a second time (from the real gesture handler) while that
+  // first, gesture-less call's promise was still pending is a known real
+  // WebKit quirk that can silently abort the second, legitimate request -
+  // so the one unprivileged call was actively working against the one
+  // that mattered. Now there is exactly one play() attempt, and it only
+  // ever happens from a real user gesture.
   function onFirstTouch(){
     if(!playing)tryPlay();
     initStorm();
     document.removeEventListener('click',onFirstTouch);
     document.removeEventListener('touchstart',onFirstTouch);
-    document.removeEventListener('keydown',onFirstTouch);
-    document.removeEventListener('scroll',onFirstTouch);
   }
   document.addEventListener('click',onFirstTouch);
   document.addEventListener('touchstart',onFirstTouch);
-  document.addEventListener('keydown',onFirstTouch);
-  document.addEventListener('scroll',onFirstTouch,{passive:true});
-
-  // Try immediate autoplay (works if browser allows)
-  tryPlay();
 })();
 </script>
 
